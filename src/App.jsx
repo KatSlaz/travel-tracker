@@ -1,25 +1,20 @@
 import './App.css'
+import Signup from './pages/Signup'
+import Login from './pages/Login'
+import Map from './pages/Map'
+import Home from './pages/Home'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
   return (
-    <div className="app">
-      <header className="header">
-        <h1>TravelTracker</h1>
-      </header>
-
-      <main className="main">
-        <aside className="sidebar">
-          <h2>My Travels</h2>
-          <button>Add Location</button>
-
-          <h2>Create group</h2>
-        </aside>
-
-        <section className="map">
-          <h2>World Map</h2>
-        </section>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/signup" element={<Signup />}/>
+        <Route path="/login" element={<Login />}/>
+        <Route path="/map" element={<Map />}/>
+        <Route path="/" element={<Home />}/>
+      </Routes>
+    </BrowserRouter>
   )
 }
 

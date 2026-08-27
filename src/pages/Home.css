@@ -1,0 +1,47 @@
+.header-home {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10%;
+}
+
+.login-button {
+  position: absolute;
+  right: 10%;
+  top: 50%;
+  cursor: pointer;
+}
+
+.world-image {
+    width: 1000px;
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+.description {
+    font-size: 1.2rem;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 5%;
+}
+
+.get-started-button {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    outline: 3px solid transparent;
+    outline-offset: 0px;
+    transition: outline 0.2s ease, outline-offset 0.2s ease;
+    border-radius: 5px;
+}
+
+.get-started-button:hover, .get-started-button:active {
+    background-color: #45a049;
+    outline: 3px solid #007bff;
+    outline-offset: 4px;
+}
