@@ -4,12 +4,14 @@ html, body, #root {
     margin: 0;
 }
 
+/* Makes the map page fill the space below the navbar. */
 .map-page {
     position: relative;
     width: 100%;
     height: calc(100vh - 60px);
 }
 
+/* Makes the map fill the entire map page. */
 .map-container {
     width: 100%;
     height: 100%;

@@ -17,8 +17,9 @@
     box-shadow: none;
 }
 
+/*ensures sidebar content fades out when the sidebar is closed.*/
 .sidebar-content {
-    padding: 1rem;
+    padding: 0.5rem;
     transition: opacity 0.2s ease;
 }
 
@@ -35,10 +36,11 @@
     position: relative;
     display: flex;
     align-items: center;
-    padding: 10px;
-    gap: 10px;
+    padding: 6px;
+    gap: 4px;
     cursor: pointer;
     border-radius: 6px;
+    text-align: left;
 }
 
 .map-list {
@@ -61,6 +63,14 @@
     color: #333;
     padding: 2px 6px;
     border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+}
+
+.map-item:hover .map-menu-button {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .map-menu-button:hover {
@@ -99,4 +109,46 @@
 
 .map-item-container {
     position: relative;
+}
+
+.dropdown-container {
+    width: 15px;
+    min-width: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.dropdown-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #333;
+    padding: 0;
+    border-radius: 4px;
+    width: 15px;
+    height: 20px;
+}
+
+.dropdown-button-hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.submap-list {
+    margin-left: 35px;
+}
+
+.submap-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    gap: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: left;
+}
+
+.submap-item:hover {
+    background-color: #f0f0f0;
 }
