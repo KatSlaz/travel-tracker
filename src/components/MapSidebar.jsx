@@ -6,6 +6,11 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
     
     // Keeps track of which map is currently being customized with null meaning no map is being customized.
     const [customizingMap, setCustomizingMap] = useState(null);
+
+    //keeps track of which map we are renaming
+    const [renamingMap, setRenamingMap] = useState(null);
+
+    const [newMapName, setNewMapName] = useState('');
     
     const [expandedMaps, setExpandedMaps] = useState([]);
     const menuRef = useRef(null);
@@ -82,21 +87,6 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
     //toggles the expansion of a map by its ID.
     function toggleExpandMap(id) {
         setExpandedMaps(expandedMaps.includes(id) ? expandedMaps.filter(mapId => mapId !== id) : [...expandedMaps, id]);
-    }
-
-    // Renames a map by its ID.
-    function renameMap(id) {
-        const map = maps.find(map => map.id === id);
-        const newName = prompt('Enter new name for the map:', map.name);
-
-        // If the user cancels the prompt or enters an empty name, does nothing.
-        if (newName === null || newName.trim() === '') return;
-
-        // creates a new array of maps with the updated name for the specified map.
-        setMaps(maps.map(map => map.id === id ? { ...map, name: newName.trim() } : map));
-
-        // closes menu after renaming the map.
-        setCustomizingMap(null);
     }
 
     return (
@@ -180,7 +170,9 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                 <div ref={menuRef} className="customization-menu">
                                     <button onClick={(event) => {
                                         event.stopPropagation();
-                                        renameMap(map.id);
+                                        setNewMapName(map.name);
+                                        setRenamingMap(map.id);
+                                        setCustomizingMap(null);
                                     }}>
                                         rename
                                     </button>
@@ -214,6 +206,38 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                     }}>
                                         delete 
                                     </button>
+                                </div>
+                            )}
+
+                            {/*shows the rename popup for the matching map id.*/}
+                            {renamingMap === map.id && (
+                                <div className="rename-overlay">
+                                    <div className="rename-popup">
+                                        <h3>Rename Map</h3>
+                                        <input 
+                                        type="text"
+                                        value={newMapName}
+                                        onChange={(event) => setNewMapName(event.target.value)}
+                                        />
+                                        <div className="rename-buttons">
+                                            <button onClick={() => setRenamingMap(null)}>
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (newMapName.trim() === '') return;
+
+                                                    setMaps(
+                                                        maps.map(map => map.id === renamingMap ? {...map, name: newMapName.trim() }
+                                                        : map)
+                                                    )
+                                                    setRenamingMap(null);
+                                                }}
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
