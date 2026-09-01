@@ -216,3 +216,27 @@
     align-items: center;
     z-index: 100;
 }
+
+.delete-popup {
+    width: 300px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.delete-popup p {
+    font-size: large;
+    margin-bottom: 15px;
+}
+
+.delete-popup h3 {
+    margin-top: 0;
+}
+
+
+.delete-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

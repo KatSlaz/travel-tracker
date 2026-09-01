@@ -10,8 +10,10 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
     //keeps track of which map we are renaming
     const [renamingMap, setRenamingMap] = useState(null);
 
+    const [deletingMap, setDeletingMap] = useState(null);
     const [newMapName, setNewMapName] = useState('');
-    
+    const [addingSubmap, setAddingSubmap] = useState(null);
+    const [newSubmapName, setNewSubmapName] = useState('');
     const [expandedMaps, setExpandedMaps] = useState([]);
     const menuRef = useRef(null);
     
@@ -196,13 +198,16 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                     </button>
                                     <button onClick={(event) => {
                                         event.stopPropagation();
-                                        // Implementation for submap
+                                        setNewSubmapName('');
+                                        setAddingSubmap(map.id);
+                                        setCustomizingMap(null);
                                     }}>
                                         add submap
                                     </button>
                                     <button onClick={(event) => {
                                         event.stopPropagation();
-                                        // Implementation for delete
+                                        setDeletingMap(map.id);
+                                        setCustomizingMap(null);
                                     }}>
                                         delete 
                                     </button>
@@ -216,6 +221,7 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                         <h3>Rename Map</h3>
                                         <input 
                                         type="text"
+                                        placeholder="Enter new map name."
                                         value={newMapName}
                                         onChange={(event) => setNewMapName(event.target.value)}
                                         />
@@ -235,6 +241,70 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                                 }}
                                             >
                                                 Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/*Shows the delete popup for the matching map id.*/}
+                            {deletingMap === map.id && (
+                                <div className="rename-overlay">
+                                    <div className="delete-popup">
+                                        <h3>Delete Map?</h3>
+                                        <p>Are you sure you want to delete "{map.name}"?</p>
+
+                                        <div className="delete-buttons">
+                                            <button onClick={() =>  setDeletingMap(null)}>
+                                                Cancel
+                                            </button>
+
+                                            <button onClick={() => {
+                                                setMaps(maps.filter(map => map.id !== deletingMap)
+                                                )
+                                                setDeletingMap(null);
+                                            }}>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/*Shows the adding submap popup to add to the matching map id.*/}
+                            {addingSubmap === map.id && (
+                                <div className="rename-overlay">
+                                    <div className="rename-popup">
+                                        <h3>Add Submap</h3>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Enter submap name"
+                                            value={newSubmapName}
+                                            onChange={(event) => setNewSubmapName(event.target.value)}
+                                        />
+
+                                        <div className="rename-buttons">
+                                            <button onClick={() => setAddingSubmap(null)}>
+                                                    Cancel
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (newSubmapName.trim() === '') return;
+                                                    setMaps(maps.map(map =>
+                                                        map.id === addingSubmap ? {
+                                                            ...map, submaps: [...map.submaps, {
+                                                                id: Date.now(),
+                                                                name: newSubmapName.trim(),
+                                                                visible: true
+                                                            }]
+                                                        }
+                                                        : map
+                                                    ))
+                                                    setAddingSubmap(null);
+                                                }}
+                                            >
+                                                Create
                                             </button>
                                         </div>
                                     </div>
