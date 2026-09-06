@@ -21,6 +21,9 @@
 .sidebar-content {
     padding: 0.5rem;
     transition: opacity 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .map-sidebar.closed .sidebar-content {
@@ -72,6 +75,8 @@
 
 .map-list {
     margin-top: 20px;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .map-item:hover {
@@ -169,14 +174,57 @@
     display: flex;
     align-items: center;
     padding: 5px 10px;
-    gap: 10px;
+    gap: 4px;
     cursor: pointer;
     border-radius: 6px;
     text-align: left;
+    position: relative;
 }
 
 .submap-item:hover {
     background-color: #f0f0f0;
+}
+
+.submap-name {
+    flex: 1;
+}
+
+.submap-menu-button {
+    opacity: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.2 rem;
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: opacity 0.1s ease;
+    pointer-events: none;
+}
+
+.submap-item:hover .submap-menu-button {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.submap-menu-button:hover {
+    background-color: #e0e0e0;
+}
+
+.submap-customization-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    border: 1px solid rgb(107, 102, 102);
+    border-radius: 8px;
+    margin-left: 35px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+    padding: 1px;
 }
 
 .rename-popup {
@@ -240,3 +288,10 @@
     justify-content: center;
     gap: 10px;
 }
+
+.add-map-button {
+    flex-shrink: 0;
+    margin-bottom: 25px;
+    margin-top: 25px;
+}
+

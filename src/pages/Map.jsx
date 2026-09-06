@@ -21,8 +21,9 @@ function TravelMap() {
         {
             id: 1,
             name: 'All Places',
-            visible: true,
+            visible: false,
             isDefault: true,
+            color: '#3388ff',
             submaps: [],
         },
         {
@@ -30,6 +31,7 @@ function TravelMap() {
             name: 'My places',
             visible: false,
             isDefault: false,
+            color: '#3388ff',
             submaps: [],
         },
         {
@@ -37,10 +39,11 @@ function TravelMap() {
             name: 'Places to visit',
             visible: false,
             isDefault: false,
+            color: '#3388ff',
             submaps: [ 
-                { id: 4, name: 'Asia', visible: true }, 
-                { id: 5, name: 'Europe', visible: true }, 
-                { id: 6, name: 'North America', visible: true } 
+                { id: 4, name: 'Asia', visible: false, color: '#e74c3c' }, 
+                { id: 5, name: 'Europe', visible: false, color: '#3498db' }, 
+                { id: 6, name: 'North America', visible: false, color: '#2ecc71' } 
             ],
         }
     ]);

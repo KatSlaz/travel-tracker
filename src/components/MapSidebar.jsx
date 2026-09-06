@@ -14,14 +14,24 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
     const [newMapName, setNewMapName] = useState('');
     const [addingSubmap, setAddingSubmap] = useState(null);
     const [newSubmapName, setNewSubmapName] = useState('');
+    const [addingMap, setAddingMap] = useState(false);
     const [expandedMaps, setExpandedMaps] = useState([]);
+    const [customizingSubmap, setCustomizingSubmap] = useState(null);
+    const [renamingSubmap, setRenamingSubmap] = useState(null);
+    const [deletingSubmap, setDeletingSubmap] = useState(null);
     const menuRef = useRef(null);
+    const submapMenuRef = useRef(null);
+    const [changingColor, setChangingColor] = useState(null);
+    const [newColor, setNewColor] = useState('#3388ff');
     
     // Closes the customization menu if the user clicks outside of it.
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 setCustomizingMap(null);
+            }
+            if (submapMenuRef.current && !submapMenuRef.current.contains(event.target)) {
+                setCustomizingSubmap(null);
             }
         };
 
@@ -136,7 +146,7 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                         />
                                     </div>
 
-                                    <span className="map-name">{map.name}</span>
+                                    <span className="map-name" style={{ color: map.color }}>{map.name}</span>
 
                                 {!map.isDefault && (
                                     <button 
@@ -155,15 +165,179 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                             {expandedMaps.includes(map.id) && (
                                 <div className="submap-list">
                                     {map.submaps.map((submap) => (
-                                        <div key={submap.id} className="submap-item">
+                                        <div 
+                                            key={submap.id} 
+                                            className="submap-item"
+                                            onClick={() => toggleSubmap(map.id, submap.id)}>
                                             <input
                                                 type="checkbox"
                                                 checked={submap.visible}
                                                 onChange={() => toggleSubmap(map.id, submap.id)}
                                                 onClick={(event) => event.stopPropagation()}
                                             />
-                                            <span>{submap.name}</span>
+                                            <span className="submap-name" style={{ color: submap.color }}>
+                                                {submap.name}
+                                            </span>
+                                            <button
+                                                className="submap-menu-button"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setCustomizingSubmap(
+                                                        customizingSubmap === submap.id ? null : submap.id
+                                                    )
+                                                }}
+                                            >
+                                                ⋮
+                                            </button>
+
+                                            {customizingSubmap === submap.id && (
+                                                <div 
+                                                ref={submapMenuRef} 
+                                                className="submap-customization-menu"
+                                                onClick={(event) => event.stopPropagation()}
+                                                >
+                                                    <button
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setNewSubmapName(submap.name);
+                                                            setRenamingSubmap({
+                                                                mapId: map.id,
+                                                                submapId: submap.id
+                                                            })
+                                                            setCustomizingSubmap(null);
+                                                        }}
+                                                    >
+                                                        rename
+                                                    </button>
+
+                                                    <button 
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setNewColor(submap.color);
+                                                            setChangingColor({
+                                                                mapId: map.id,
+                                                                submapId: submap.id
+                                                            });
+                                                            setCustomizingMap(null);
+                                                        }}
+                                                    >
+                                                        change color
+                                                    </button>
+
+                                                    <button 
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            
+                                                            setDeletingSubmap({
+                                                                mapId: map.id,
+                                                                submapId: submap.id
+                                                            })
+                                                            setCustomizingSubmap(null);
+                                                        }}
+                                                    >
+                                                        delete
+                                                    </button>
+                                                </div>
+                                        )}
+                                        
+                                        {renamingSubmap &&
+                                renamingSubmap.mapId === map.id &&
+                                renamingSubmap.submapId === submap.id && (
+                                    <div className="rename-overlay">
+                                        <div 
+                                        className="rename-popup"
+                                        onClick={(event) => event.stopPropagation()}
+                                        >
+                                            <h3>Rename Submap</h3>
+
+                                            <input 
+                                                type="text"
+                                                placeholder="Enter new submap name"
+                                                value={newSubmapName}
+                                                onChange={(event) => setNewSubmapName(event.target.value)}
+                                            />
+
+                                            <div className="rename-buttons">
+                                                <button
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setRenamingSubmap(null);
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+
+                                                <button
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+
+                                                        if (newSubmapName.trim() === '') return;
+
+                                                        setMaps(prevMaps => prevMaps.map(map => map.id === renamingSubmap.mapId ? {
+                                                            ...map,
+                                                            submaps: map.submaps.map(submap =>
+                                                                submap.id === renamingSubmap.submapId ? {
+                                                                    ...submap,
+                                                                    name: newSubmapName.trim()
+                                                                }
+                                                                :submap
+                                                        )}
+                                                        :map
+                                                        ))
+                                                        setRenamingSubmap(null);
+                                                        setNewSubmapName('');
+                                                    }}
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>                                     
                                         </div>
+
+                                    </div>
+                                )
+                            }
+
+                            {deletingSubmap &&
+                                deletingSubmap.mapId === map.id &&
+                                deletingSubmap.submapId === submap.id && (
+                                    <div className="rename-overlay">
+                                        <div 
+                                            className="delete-popup"
+                                            onClick={(event) => event.stopPropagation()}
+                                        >
+                                            <h3>Delete Submap?</h3>
+                                            <p>Are you sure you want to delete "{submap.name}"?</p>
+
+                                            <div className="delete-buttons">
+                                                <button
+                                                    onClick={() => setDeletingSubmap(null)}
+                                                >
+                                                    Cancel
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setMaps(maps.map(map =>
+                                                        map.id === deletingSubmap.mapId ? {
+                                                            ...map,
+                                                            submaps: map.submaps.filter(
+                                                                submap =>
+                                                                    submap.id !== deletingSubmap.submapId
+                                                            )
+                                                        }
+                                                        :map
+                                                    ))
+                                                    setDeletingSubmap(null);
+                                                    }}
+                                                >
+                                                    Delete
+                                                </button>      
+                                            </div>
+                                        </div>
+                                    </div>     
+                                )                                     
+                            }
+                            </div>
                                     ))}
                                 </div>
                             )}
@@ -180,7 +354,12 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                     </button>
                                     <button onClick={(event) => {
                                         event.stopPropagation();
-                                        // Implementation for changing color
+                                        setNewColor(map.color);
+                                        setChangingColor({
+                                            mapId: map.id,
+                                            submapId: null
+                                        });
+                                        setCustomizingMap(null);
                                     }}>
                                         change color
                                     </button>
@@ -211,6 +390,61 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                     }}>
                                         delete 
                                     </button>
+                                </div>
+                            )}
+
+                            {/*shows the change color popup for the matching map id.*/}
+                            {changingColor &&
+                            changingColor.mapId === map.id && (
+                                <div className="rename-overlay">
+                                    <div 
+                                        className="rename-popup"
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
+                                        <h3>Change Color</h3>
+
+                                        <input
+                                            type="color"
+                                            value={newColor}
+                                            onChange={(event) => setNewColor(event.target.value)}
+                                        />
+
+                                        <div className="rename-buttons">
+                                            <button onClick={() => setChangingColor(null)}>
+                                                Cancel
+                                            </button>
+
+                                            <button onClick={() => {
+                                                setMaps(prevMaps => prevMaps.map(map => {
+                                                    if (map.id !== changingColor.mapId) {
+                                                        return map;
+                                                    }
+
+                                                    // if a submap is being changed.
+                                                    if (changingColor.submapId !== null) {
+                                                        return {
+                                                            ...map,
+                                                            submaps: map.submaps.map(submap =>
+                                                                submap.id === changingColor.submapId
+                                                                    ? { ...submap, color: newColor }
+                                                                    : submap
+                                                            )
+                                                        };
+                                                    }
+
+                                                    // else change the map color.
+                                                    return {
+                                                        ...map,
+                                                        color: newColor
+                                                    };
+                                                }));
+
+                                                setChangingColor(null);
+                                            }}>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
@@ -274,7 +508,10 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                             {/*Shows the adding submap popup to add to the matching map id.*/}
                             {addingSubmap === map.id && (
                                 <div className="rename-overlay">
-                                    <div className="rename-popup">
+                                    <div 
+                                        className="rename-popup"
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
                                         <h3>Add Submap</h3>
 
                                         <input
@@ -293,10 +530,12 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                                                     if (newSubmapName.trim() === '') return;
                                                     setMaps(maps.map(map =>
                                                         map.id === addingSubmap ? {
-                                                            ...map, submaps: [...map.submaps, {
+                                                            ...map, visible: false,
+                                                            submaps: [...map.submaps, {
                                                                 id: Date.now(),
                                                                 name: newSubmapName.trim(),
-                                                                visible: true
+                                                                visible: false,
+                                                                color: '#3388ff'
                                                             }]
                                                         }
                                                         : map
@@ -313,6 +552,57 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
                         </div>
                     ))}
                 </div>
+                <button className="add-map-button" 
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setNewMapName('');
+                        setAddingMap(true);
+                        setCustomizingMap(null);
+                    }}
+                >
+                    Add Map
+                </button>
+
+                {addingMap && (
+                    <div className="rename-overlay">
+                        <div className="rename-popup">
+                            <h3>Add Map</h3>
+
+                            <input
+                                type="text"
+                                placeholder="Enter map name"
+                                value={newMapName}
+                                onChange={(event) => setNewMapName(event.target.value)}
+                            />
+                        
+
+                            <div className="rename-buttons">
+                                <button onClick={() => setAddingMap(false)}
+                                > Cancel</button>
+                                
+                                <button onClick={() => {
+                                    if (newMapName.trim() === '') return;
+
+                                    const newMap = {
+                                        id: Date.now(),
+                                        name: newMapName.trim(),
+                                        visible: false,
+                                        isDefault: false,
+                                        color: '#3388ff',
+                                        submaps: []
+                                    };
+
+                                    setMaps([...maps, newMap]);
+                                    setAddingMap(false);
+                                }}
+                                >
+                                    Create
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
             
         </aside>
