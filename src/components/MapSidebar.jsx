@@ -44,56 +44,103 @@ function MapSidebar({ isOpen, setIsOpen, maps, setMaps }) {
 
     // Toggles the visibility of a map by its ID and all its submaps.
     function toggleMap(id) {
-        setMaps(maps.map(map => {
-            if (map.id !== id) {
-                return map;
-            }
+        setMaps(prevMaps => {
+            // If All Places is being toggled
+            if (id === 1) {
+                const allPlaces = prevMaps.find(map => map.id === 1);
+                const newVisibility = !allPlaces.visible;
 
-            //if has submaps toggle all of them
-            if (map.submaps.length > 0) {
-                const newVisibility = !map.visible;
-
-                return {
+                return prevMaps.map(map => ({
                     ...map,
                     visible: newVisibility,
                     submaps: map.submaps.map(submap => ({
                         ...submap,
                         visible: newVisibility
                     }))
-                }
+                }));
             }
 
-            //if no submaps then the map toggles normally.
-            return {
-                ...map,
-                visible: !map.visible
-            };
-        }));
+            // Toggle the selected map normally
+            const updatedMaps = prevMaps.map(map => {
+                if (map.id !== id) {
+                    return map;
+                }
+
+                if (map.submaps.length > 0) {
+                    const newVisibility = !map.visible;
+
+                    return {
+                        ...map,
+                        visible: newVisibility,
+                        submaps: map.submaps.map(submap => ({
+                            ...submap,
+                            visible: newVisibility
+                        }))
+                    };
+                }
+
+                return {
+                    ...map,
+                    visible: !map.visible
+                };
+            });
+
+            // Check if EVERYTHING is now visible
+            const everythingVisible = updatedMaps
+                .filter(map => map.id !== 1)
+                .every(map =>
+                    map.visible &&
+                    map.submaps.every(submap => submap.visible)
+                );
+
+            // Update All Places based on that
+            return updatedMaps.map(map =>
+                map.id === 1
+                    ? { ...map, visible: everythingVisible }
+                    : map
+            );
+        });
     }
 
     //toggles the visibility of a submap by its ID and updates the parent map visibility.
     function toggleSubmap(mapId, submapId) {
-        setMaps(maps.map(map=> {
-            if (map.id !== mapId) {
-                return map;
-            }
+        setMaps(prevMaps => {
+            const updatedMaps = prevMaps.map(map => {
+                if (map.id !== mapId) {
+                    return map;
+                }
 
-            const updatedSubmaps = map.submaps.map(submap =>
-                submap.id === submapId
-                ? { ...submap, visible: !submap.visible} : submap
-            )
+                const updatedSubmaps = map.submaps.map(submap =>
+                    submap.id === submapId
+                        ? { ...submap, visible: !submap.visible }
+                        : submap
+                );
 
-            //parent is checked only if all submaps are checked.
-            const allSubmapsVisible = updatedSubmaps.every(
-                submap => submap.visible
-            )
+                const allSubmapsVisible = updatedSubmaps.every(
+                    submap => submap.visible
+                );
 
-            return {
-                ...map,
-                visible: allSubmapsVisible,
-                submaps: updatedSubmaps
-            }
-        }))
+                return {
+                    ...map,
+                    visible: allSubmapsVisible,
+                    submaps: updatedSubmaps
+                };
+            });
+
+            // Check if every map and every submap is visible
+            const everythingVisible = updatedMaps
+                .filter(map => map.id !== 1)
+                .every(map =>
+                    map.visible &&
+                    map.submaps.every(submap => submap.visible)
+                );
+
+            return updatedMaps.map(map =>
+                map.id === 1
+                    ? { ...map, visible: everythingVisible }
+                    : map
+            );
+        });
     }
 
     //toggles the expansion of a map by its ID.
