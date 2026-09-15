@@ -1,4 +1,4 @@
-import Map, { Marker } from '@vis.gl/react-maplibre';
+import Map, { Marker, Popup } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './Map.css';
 import Navbar from '../components/Navbar';
@@ -21,6 +21,8 @@ function TravelMap() {
     const [selectedMaps, setSelectedMaps] = useState([]);
     const [expandedPinMaps, setExpandedPinMaps] = useState([]);
     const [pins, setPins] = useState([]);
+    const [selectedPin, setSelectedPin] = useState(null);
+    const [editingPin, setEditingPin] = useState(null);
 
     /*
     Stores the maps that the user has available.
@@ -33,7 +35,7 @@ function TravelMap() {
             name: 'All Places',
             visible: false,
             isDefault: true,
-            color: '#3388ff',
+            color: '#333',
             submaps: [],
         },
         {
@@ -41,7 +43,7 @@ function TravelMap() {
             name: 'My places',
             visible: false,
             isDefault: false,
-            color: '#3388ff',
+            color: '#7520b9',
             submaps: [],
         },
         {
@@ -52,7 +54,7 @@ function TravelMap() {
             color: '#3388ff',
             submaps: [ 
                 { id: 4, name: 'Asia', visible: false, color: '#e74c3c' }, 
-                { id: 5, name: 'Europe', visible: false, color: '#3498db' }, 
+                { id: 5, name: 'Europe', visible: false, color: '#858626' }, 
                 { id: 6, name: 'North America', visible: false, color: '#2ecc71' } 
             ],
         }
@@ -190,6 +192,55 @@ function TravelMap() {
         });
     };
 
+    const getPinColor = (pin) => {
+        // Ignore All Places when choosing the pin color
+        const selectedIds = pin.maps.filter(id => id !== 1);
+
+        for (const id of selectedIds) {
+            // Check if the ID belongs to a submap
+            for (const map of maps) {
+                const submap = map.submaps.find(submap => submap.id === id);
+
+                if (submap) {
+                    return submap.color;
+                }
+            }
+
+            // Check if the ID belongs to a parent map
+            const map = maps.find(map => map.id === id);
+
+            if (map) {
+                return map.color;
+            }
+        }
+
+        return '#3388ff';
+    };
+
+    const isPinVisible = (pin) => {
+        // All Places is selected, so show every pin
+        if (maps.find(map => map.id === 1)?.visible) {
+            return true;
+        }
+
+        // Check whether any map or submap assigned to this pin is visible
+        return pin.maps.some(id => {
+            // Check parent maps
+            const map = maps.find(map => map.id === id);
+
+            if (map) {
+                return map.visible;
+            }
+
+            // Check submaps
+            return maps.some(map =>
+                map.submaps.some(submap =>
+                    submap.id === id && submap.visible
+                )
+            );
+        });
+    };
+
     return (
         <>
             <Navbar />
@@ -294,7 +345,7 @@ function TravelMap() {
                             width: '100%',
                             height: '100%'
                         }}
-                        mapStyle="https://tiles.openfreemap.org/styles/positron"
+                        mapStyle="https://tiles.openfreemap.org/styles/fiord"
                         onClick={(event) => {
                             if (!addingPin) return;
                             setNewPin({
@@ -312,13 +363,96 @@ function TravelMap() {
                                 latitude={newPin.latitude}
                             />
                         )}
-                        {pins.map(pin => (
+                        {pins.filter(isPinVisible).map(pin => (
                             <Marker
                                 key={pin.id}
                                 longitude={pin.longitude}
                                 latitude={pin.latitude}
-                            />
+                            >
+                                <div
+                                    className="saved-pin-marker"
+                                    style={{
+                                        backgroundColor: getPinColor(pin)
+                                    }}
+                                    title={pin.name}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setSelectedPin(pin);
+                                    }}
+                                />
+                            </Marker>
                         ))}
+
+                        {selectedPin && (
+                            <Popup
+                                longitude={selectedPin.longitude}
+                                latitude={selectedPin.latitude}
+                                onClose={() => setSelectedPin(null)}
+                                closeButton={true}
+                                closeOnClick={false}
+                                anchor="bottom"
+                            >
+                                <div className="pin-popup">
+                                    <strong>{selectedPin.name}</strong>
+
+                                    <div className="pin-popup-maps">
+                                        <span>Maps:</span>
+
+                                        {maps
+                                            .filter(map => map.id !== 1)
+                                            .map(map => {
+                                                const selectedSubmaps = map.submaps.filter(submap =>
+                                                    selectedPin.maps.includes(submap.id)
+                                                );
+
+                                                const mapSelected = selectedPin.maps.includes(map.id);
+
+                                                if (!mapSelected && selectedSubmaps.length === 0) {
+                                                    return null;
+                                                }
+
+                                                return (
+                                                    <div key={map.id} className="pin-popup-map">
+                                                        <div
+                                                            className="pin-popup-map-name"
+                                                            style={{ color: map.color }}
+                                                        >
+                                                            {map.name}
+                                                        </div>
+
+                                                        {selectedSubmaps.length > 0 && (
+                                                            <div className="pin-popup-submaps">
+                                                                {selectedSubmaps.map(submap => (
+                                                                    <div
+                                                                        key={submap.id}
+                                                                        className="pin-popup-submap-name"
+                                                                        style={{ color: submap.color }}
+                                                                    >
+                                                                        {submap.name}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingPin(selectedPin);
+                                                                setPinName(selectedPin.name);
+                                                                setSelectedMaps(selectedPin.maps);
+                                                                setSelectedPin(null);
+                                                            }}
+                                                        >
+                                                            Edit Pin
+                                                        </button>
+                                                    </div>
+
+                                                    
+                                                );
+                                            })}
+                                    </div>
+                                </div>
+                            </Popup>
+                        )}
                     </Map>
 
                     {newPin && (

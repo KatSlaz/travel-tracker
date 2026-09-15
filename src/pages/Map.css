@@ -259,3 +259,37 @@ html, body, #root {
 .pin-submap-item input {
     margin-left: 28px;
 }
+
+.saved-pin-marker {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.maplibregl-popup-close-button {
+    color: #333;
+}
+
+.pin-popup-maps {
+    margin-top: 8px;
+}
+
+.pin-popup-map {
+    margin-top: 4px;
+}
+
+.pin-popup-map-name {
+    font-weight: 600;
+}
+
+.pin-popup-submaps {
+    margin-left: 12px;
+}
+
+.pin-popup-submap-name {
+    font-size: 13px;
+    margin-top: 2px;
+}
