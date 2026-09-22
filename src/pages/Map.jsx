@@ -2,7 +2,7 @@ import Map, { Marker, Popup } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './Map.css';
 import Navbar from '../components/Navbar';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import MapSidebar from '../components/MapSidebar';
 
 
@@ -23,6 +23,15 @@ function TravelMap() {
     const [pins, setPins] = useState([]);
     const [selectedPin, setSelectedPin] = useState(null);
     const [editingPin, setEditingPin] = useState(null);
+    const [pinNotes, setPinNotes] = useState('');
+
+    useEffect(() => {
+        const map = mapRef.current?.getMap();
+
+        if (!map) return;
+
+        map.getCanvas().style.cursor = addingPin ? 'crosshair' : '';
+    }, [addingPin]);
 
     /*
     Stores the maps that the user has available.
@@ -363,6 +372,12 @@ function TravelMap() {
                                 latitude={newPin.latitude}
                             />
                         )}
+                        {editingPin && (
+                            <Marker
+                                longitude={editingPin.longitude}
+                                latitude={editingPin.latitude}
+                            />
+                        )}
                         {pins.filter(isPinVisible).map(pin => (
                             <Marker
                                 key={pin.id}
@@ -389,11 +404,17 @@ function TravelMap() {
                                 latitude={selectedPin.latitude}
                                 onClose={() => setSelectedPin(null)}
                                 closeButton={true}
-                                closeOnClick={false}
                                 anchor="bottom"
                             >
                                 <div className="pin-popup">
                                     <strong>{selectedPin.name}</strong>
+
+                                    {selectedPin.notes && (
+                                        <div className="pin-popup-notes">
+                                            <span>Notes:</span>
+                                            <p>{selectedPin.notes}</p>
+                                        </div>
+                                    )}
 
                                     <div className="pin-popup-maps">
                                         <span>Maps:</span>
@@ -440,6 +461,7 @@ function TravelMap() {
                                                                 setPinName(selectedPin.name);
                                                                 setSelectedMaps(selectedPin.maps);
                                                                 setSelectedPin(null);
+                                                                setPinNotes(selectedPin.notes || '');
                                                             }}
                                                         >
                                                             Edit Pin
@@ -455,16 +477,23 @@ function TravelMap() {
                         )}
                     </Map>
 
-                    {newPin && (
+                    {(newPin || editingPin) && (
                         <div className="pin-details-overlay">
                             <div className="pin-details-popup">
-                                <h3>Add Pin</h3>
+                                <h3>{editingPin ? 'Edit Pin' : 'Add Pin'}</h3>
 
                                 <input
                                     type="text"
                                     placeholder="Enter place name"
                                     value={pinName}
                                     onChange={(event) => setPinName(event.target.value)}
+                                />
+                                <h4>Notes</h4>
+                                <textarea
+                                    placeholder="Add notes about this place..."
+                                    value={pinNotes}
+                                    onChange={(event) => setPinNotes(event.target.value)}
+                                    rows={4}
                                 />
 
                                 <h4>Choose Maps</h4>
@@ -542,7 +571,15 @@ function TravelMap() {
                                 </div>
 
                                 <div className="pin-details-buttons">
-                                    <button onClick={() => setNewPin(null)}>
+                                    <button
+                                        onClick={() => {
+                                            setNewPin(null);
+                                            setEditingPin(null);
+                                            setPinName('');
+                                            setSelectedMaps([]);
+                                            setPinNotes('');
+                                        }}
+                                    >
                                         Cancel
                                     </button>
 
@@ -558,19 +595,37 @@ function TravelMap() {
                                                 return;
                                             }
 
-                                            const pin = {
-                                                id: Date.now(),
-                                                name: pinName.trim(),
-                                                longitude: newPin.longitude,
-                                                latitude: newPin.latitude,
-                                                maps: selectedMaps
-                                            };
+                                            if (editingPin) {
+                                                setPins(prevPins =>
+                                                    prevPins.map(pin =>
+                                                        pin.id === editingPin.id
+                                                            ? {
+                                                                ...pin,
+                                                                name: pinName.trim(),
+                                                                notes: pinNotes.trim(),
+                                                                maps: selectedMaps
+                                                            }
+                                                            : pin
+                                                    )
+                                                );
+                                            } else {
+                                                const pin = {
+                                                    id: Date.now(),
+                                                    name: pinName.trim(),
+                                                    longitude: newPin.longitude,
+                                                    latitude: newPin.latitude,
+                                                    notes: pinNotes.trim(),
+                                                    maps: selectedMaps
+                                                };
 
-                                            setPins(prevPins => [...prevPins, pin]);
+                                                setPins(prevPins => [...prevPins, pin]);
+                                            }
 
                                             setNewPin(null);
                                             setPinName('');
                                             setSelectedMaps([]);
+                                            setEditingPin(null);
+                                            setPinNotes('');
                                         }}
                                     >
                                         Save Pin

@@ -275,6 +275,7 @@ html, body, #root {
 
 .pin-popup-maps {
     margin-top: 8px;
+    color: #2c2c2c;
 }
 
 .pin-popup-map {
@@ -292,4 +293,23 @@ html, body, #root {
 .pin-popup-submap-name {
     font-size: 13px;
     margin-top: 2px;
+}
+
+.pin-popup-notes {
+    margin-top: 8px;
+}
+
+.pin-popup-notes span {
+    font-weight: bold;
+    color: #2c2c2c;
+}
+
+.pin-popup-notes p {
+    margin: 4px 0 10px;
+    white-space: pre-wrap;
+}
+
+.pin-popup strong {
+    font-size: 20px;
+    color: #333;
 }
