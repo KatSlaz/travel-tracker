@@ -24,6 +24,7 @@ function TravelMap() {
     const [selectedPin, setSelectedPin] = useState(null);
     const [editingPin, setEditingPin] = useState(null);
     const [pinNotes, setPinNotes] = useState('');
+    const [deletingPin, setDeletingPin] = useState(null);
 
     useEffect(() => {
         const map = mapRef.current?.getMap();
@@ -372,12 +373,7 @@ function TravelMap() {
                                 latitude={newPin.latitude}
                             />
                         )}
-                        {editingPin && (
-                            <Marker
-                                longitude={editingPin.longitude}
-                                latitude={editingPin.latitude}
-                            />
-                        )}
+                        
                         {pins.filter(isPinVisible).map(pin => (
                             <Marker
                                 key={pin.id}
@@ -455,22 +451,37 @@ function TravelMap() {
                                                             </div>
                                                         )}
 
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingPin(selectedPin);
-                                                                setPinName(selectedPin.name);
-                                                                setSelectedMaps(selectedPin.maps);
-                                                                setSelectedPin(null);
-                                                                setPinNotes(selectedPin.notes || '');
-                                                            }}
-                                                        >
-                                                            Edit Pin
-                                                        </button>
+                                                        
                                                     </div>
 
                                                     
                                                 );
                                             })}
+                                    </div>
+
+                                    <div className="pin-popup-buttons">
+                                        <button
+                                            className="pin-edit-button"
+                                            onClick={() => {
+                                                setEditingPin(selectedPin);
+                                                setPinName(selectedPin.name);
+                                                setSelectedMaps(selectedPin.maps);
+                                                setSelectedPin(null);
+                                                setPinNotes(selectedPin.notes || '');
+                                            }}
+                                        >
+                                            Edit Pin
+                                        </button>
+
+                                        <button
+                                            className="pin-delete-button"
+                                            onClick={() => {
+                                                setDeletingPin(selectedPin);
+                                                setSelectedPin(null);
+                                            }}
+                                        >
+                                            Delete Pin
+                                        </button>
                                     </div>
                                 </div>
                             </Popup>
@@ -635,6 +646,41 @@ function TravelMap() {
                         </div>
                     )}
 
+                    {deletingPin && (
+                        <div className="pin-details-overlay">
+                            <div className="pin-details-popup">
+                                <h3>Delete Pin</h3>
+
+                                <p>
+                                    Are you sure you want to delete "{deletingPin.name}"?
+                                </p>
+
+                                <div className="pin-details-buttons">
+                                    <button
+                                        onClick={() => {
+                                            setDeletingPin(null);
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        className="pin-delete-button"
+                                        onClick={() => {
+                                            setPins(prevPins =>
+                                                prevPins.filter(pin => pin.id !== deletingPin.id)
+                                            );
+
+                                            setDeletingPin(null);
+                                        }}
+                                    >
+                                        Delete Pin
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
                     <button 
                         className="add-pin-button" 
                         onClick={() => {

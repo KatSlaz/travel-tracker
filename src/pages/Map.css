@@ -179,6 +179,18 @@ html, body, #root {
     gap: 10px;
 }
 
+.pin-details-buttons button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.pin-details-buttons button:hover {
+    opacity: 0.85;
+}
+
 .pin-map-expand {
     width: 20px;
     height: 20px;
@@ -312,4 +324,84 @@ html, body, #root {
 .pin-popup strong {
     font-size: 20px;
     color: #333;
+}
+
+.pin-popup {
+    min-width: 180px;
+}
+
+.pin-popup > strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.pin-popup-notes {
+    margin-bottom: 10px;
+}
+
+.pin-popup-notes span,
+.pin-popup-maps > span {
+    font-weight: 600;
+}
+
+.pin-popup-notes p {
+    margin: 4px 0 0;
+}
+
+.pin-popup-maps {
+    margin-top: 8px;
+}
+
+.pin-popup-map {
+    margin-top: 5px;
+}
+
+.pin-popup-map-name {
+    font-weight: 600;
+}
+
+.pin-popup-submaps {
+    margin-left: 12px;
+}
+
+.pin-popup-submap-name {
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.pin-popup-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.pin-popup-buttons button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.pin-edit-button {
+    background: #3388ff;
+    color: white;
+}
+
+.pin-delete-button {
+    background: #e74c3c;
+    color: white;
+}
+
+.pin-popup-buttons button:hover {
+    opacity: 0.85;
+}
+
+.pin-delete-message {
+    margin: 0 0 20px 0;
+    color: #333;
+    line-height: 1.5;
 }
